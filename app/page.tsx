@@ -31,6 +31,8 @@ const bgColors = [
   'bg-rose-500',
 ];
 
+export const runtime = 'edge';
+
 export default async function Home() {
   const productsResponse = await fetch(
     'https://fake-store-api.okdo.workers.dev/products/'
