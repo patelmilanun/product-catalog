@@ -39,13 +39,13 @@ export default async function Home() {
 
   return (
     <main>
-      <div className="flex flex-wrap items-center justify-center p-1">
+      <div className="container mx-auto grid grid-cols-1 gap-8 p-4 sm:grid-cols-2 md:grid-cols-3 md:p-2 lg:grid-cols-4 xl:p-5">
         {products.map((product, index) => (
           <div
             key={product.id}
-            className={`relative m-6 max-w-xs flex-shrink-0 overflow-hidden rounded-lg ${
-              bgColors[Math.floor(Math.random() * 10)]
-            } shadow-lg duration-500 hover:scale-105 hover:shadow-xl`}
+            className={`relative transform overflow-hidden rounded-lg border ${
+              bgColors[Math.floor(Math.random() * 18)]
+            } cursor-pointer shadow-md transition duration-500 hover:scale-105 dark:border-gray-700 dark:bg-gray-800`}
           >
             <svg
               className="absolute bottom-0 left-0 mb-8 scale-150 opacity-10"
@@ -97,7 +97,7 @@ export default async function Home() {
                   ${product.price}
                 </span>
               </div>
-              <span className="mt-2 line-clamp-2 w-64 opacity-60">
+              <span className="mt-2 line-clamp-2 opacity-60">
                 {product.description}
               </span>
             </div>
