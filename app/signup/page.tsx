@@ -1,9 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Checkbox } from '@/components/ui/Checkbox';
 import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/Label';
 import { useToast } from '@/components/ui/useToast';
 import {
   Form,
@@ -15,37 +14,41 @@ import {
 } from '@/components/ui/Form';
 
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import { useSignIn } from '@clerk/nextjs';
+import { useSignUp } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const LoginFormSchema = z.object({
+const SignupFormSchema = z.object({
   username: z.string().min(2).max(25),
-  password: z.string().min(4).max(25),
+  password: z
+    .string()
+    .min(8, 'Password should be at least 8 characters long')
+    .max(25),
 });
 
 type Props = {};
 
-const Login = (props: Props) => {
+const Signup = (props: Props) => {
   const router = useRouter();
   const { toast } = useToast();
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { isLoaded, signUp, setActive } = useSignUp();
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const loginForm = useForm<z.infer<typeof LoginFormSchema>>({
+  const signupForm = useForm<z.infer<typeof SignupFormSchema>>({
+    resolver: zodResolver(SignupFormSchema),
     defaultValues: {
       username: 'noob',
       password: 'noobusernoob',
     },
   });
 
-  async function onSubmit(data: z.infer<typeof LoginFormSchema>) {
-    if (!LoginFormSchema.safeParse(data).success)
+  async function onSubmit(data: z.infer<typeof SignupFormSchema>) {
+    if (!SignupFormSchema.safeParse(data).success)
       toast({
         variant: 'destructive',
         title: 'Username or password is wrong',
@@ -56,11 +59,10 @@ const Login = (props: Props) => {
       }
       try {
         setIsLoading(true);
-        const result = await signIn.create({
-          identifier: data.username,
+        const result = await signUp.create({
+          username: data.username,
           password: data.password,
         });
-
         if (result.status === 'complete') {
           console.log(result);
           await setActive({ session: result.createdSessionId });
@@ -84,13 +86,13 @@ const Login = (props: Props) => {
     <div className="container mx-auto grid min-h-[90vh] place-items-center p-4 md:p-2 xl:p-5">
       <div className="mx-auto w-full sm:max-w-md">
         <h1 className="mb-12 text-center text-5xl font-extrabold transition-colors">
-          Welcome.
+          Create account.
         </h1>
-        <Form {...loginForm}>
-          <form onSubmit={loginForm.handleSubmit(onSubmit)}>
+        <Form {...signupForm}>
+          <form onSubmit={signupForm.handleSubmit(onSubmit)}>
             <div className="mb-4">
               <FormField
-                control={loginForm.control}
+                control={signupForm.control}
                 name="username"
                 render={({ field }) => (
                   <FormItem>
@@ -105,7 +107,7 @@ const Login = (props: Props) => {
             </div>
             <div className="mb-4">
               <FormField
-                control={loginForm.control}
+                control={signupForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -125,12 +127,15 @@ const Login = (props: Props) => {
             <div className="mt-6">
               <Button className="w-full" type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign In
+                Sign Up
               </Button>
             </div>
             <div className="mt-6 text-center">
-              <Button variant={'link'} asChild>
-                <Link href={'/signup'}>Sign up for an account</Link>
+              <div className="inline text-sm font-medium">
+                Already have an account?
+              </div>
+              <Button className="px-1" variant={'link'} asChild>
+                <Link href={'/login'}>Sign in</Link>
               </Button>
             </div>
           </form>
@@ -140,4 +145,4 @@ const Login = (props: Props) => {
   );
 };
 
-export default Login;
+export default Signup;
